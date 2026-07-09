@@ -12,5 +12,7 @@ pb_data/
 .DS_Store
 Thumbs.db
 
-# Local editor/agent tooling config
-.claude/
+# Local editor/agent tooling config — except the shared project settings,
+# which are committed so they apply in every session.
+.claude/*
+!.claude/settings.json
