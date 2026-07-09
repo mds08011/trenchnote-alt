@@ -44,6 +44,7 @@ At the end of every working session, before wrapping up:
 - Migrations for every schema change — never hand-edit the production database.
 - Anything touching the tag URL format or QR content is a breaking change to physical printed labels. Flag it loudly and require my confirmation.
 - Security notes stay honest: if something is not production-safe yet, say so in the docs rather than hiding it.
+- Never add Co-Authored-By lines, "Generated with Claude Code", or any Claude attribution to commits, commit messages, or PR descriptions.
 
 ## Roadmap context (for your awareness, not action)
 
