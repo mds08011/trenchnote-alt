@@ -139,6 +139,17 @@ Patterns you'll see repeatedly (all commented in the source):
   a division-sized deployment; pagination is the known upgrade path if a
   ledger outgrows it.
 
+## The public API contract
+
+TrenchNote is open-core: this AGPL repo is complete and self-sufficient,
+and any paid tooling lives *outside* it, talking to PocketBase's REST API
+like any other client would ([ADR 0005](adr/0005-core-premium-extension-boundary.md)).
+The practical consequence for anyone working here: the five collections'
+shapes and rules are a published contract ([API.md](API.md)), so breaking
+changes to them need an ADR and a contract version bump — not just a
+migration. Nothing in this repo may ever reference, detect, or depend on
+premium code.
+
 ## Working on the schema
 
 - Never change collections in the admin UI on a real instance — the change

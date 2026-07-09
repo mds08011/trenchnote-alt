@@ -91,9 +91,11 @@ before printing, so the QR codes point somewhere phones can actually reach.
   the hood: data model, the ledger invariants, migrations, frontend patterns.
 - **[docs/DEPLOY.md](docs/DEPLOY.md)** — running it for real: trailer
   Pi or VPS, systemd, HTTPS with Caddy, and backups you've actually tested.
+- **[docs/API.md](docs/API.md)** — the public API contract: what
+  integrations (and TrenchNote's own future premium tools) may build on.
 - **[docs/adr/](docs/adr)** — architecture decision records: why a single
-  binary + static pages, why an append-only ledger, and why the QR labels
-  encode what they encode.
+  binary + static pages, why an append-only ledger, why the QR labels
+  encode what they encode, and where the core/premium line sits.
 
 ## Security note
 
