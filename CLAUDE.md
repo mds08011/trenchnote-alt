@@ -1,195 +1,52 @@
-# CLAUDE.md — TrenchNote
+# CLAUDE.md — Standing Orders for TrenchNote
 
-Project context for Claude Code sessions. Read this first, every session.
+## What this project is
 
-## What TrenchNote is
+TrenchNote is a lightweight, open-source (AGPLv3) equipment and material tracking tool for construction field logistics. It answers three questions: What is this thing? Where is it? Who moved it? It runs on a Raspberry Pi in a construction trailer and is used by field crews scanning QR codes with their phone cameras.
 
-A minimalist, low-bandwidth, self-hostable web app for tracking physical
-equipment and materials across heavy civil and water/wastewater construction
-job sites. Built by a project engineer at a water/wastewater general
-contractor. Designed to run on low-bandwidth devices — old Androids, company
-iPads — in dirt lots with poor cell reception. (True offline capability is a
-design goal, not yet built: today the pages need a connection; they're just
-tiny about it.)
+## Who maintains this
 
-It is a **surgical field-logistics ledger** — not an ERP, not a Procore
-replacement, not accounting software. It answers three questions well and
-refuses to be anything else: *What is this thing? Where is it? Who moved it?*
+The maintainer is a construction Project Engineer, not a professional software developer. He is skilled with HTML/CSS and learning backend concepts. Therefore:
 
-### The problems it solves
+- Explain jargon on first use in all docs and in your session explanations.
+- Prefer boring, readable, well-commented code over clever code.
+- When proposing a design choice, briefly state the alternative you rejected and why.
+- Never assume familiarity with developer tooling conventions — spell out commands.
 
-The division running it has ~12 concurrent job sites and 6 project managers.
+## Hard constraints — never violate these
 
-1. **Bartered internal tools.** Shared equipment (scaffold, scissor lifts, hand
-   tools) gets traded between sites and grabbed unannounced. Nobody knows where
-   things are or who has them next.
-2. **The staging-yard black hole.** Materials sit in a yard or warehouse for
-   12–18 months and go missing before startup and commissioning, causing delays
-   and vendor disputes.
-3. **Rented equipment.** Gear rented from vendors (United Rentals, Sunbelt) needs
-   to be logged as physically on-site — without building vendor API integrations.
+1. **No-install, no-app.** The field-facing experience must work in a plain mobile browser via QR scan. No app store, no login for basic scan-and-move actions, no more than two taps for common tasks.
+2. **Low-bandwidth and low-performance.** Pages stay under ~50KB where feasible. Vendored JS only — no CDN calls, no external fonts, no analytics. Must be usable on a cheap Android phone with a weak signal.
+3. **No build step.** Plain HTML, CSS, vanilla JS/Alpine.js. If a change would require npm, webpack, or a compile step, stop and flag it to me instead.
+4. **Single-binary simplicity.** PocketBase + SQLite. Backup must remain "copy one folder." Any dependency that complicates self-hosting on a Pi or $5 VPS needs my explicit approval.
+5. **Stock is derived from the movement ledger, never stored.** The movements table is append-only. Do not add stored quantity/location fields that can drift from the ledger.
+6. **Monetize convenience, never capability.** Never gate a core field feature behind anything. All features in this repo are free and AGPL.
 
-## Non-negotiable ethos
+## Documentation standing orders
 
-Weigh every design decision against these. If a change violates one, stop and
-raise it rather than proceeding.
+Docs are updated in the same session as the code they describe — never deferred.
 
-- **Runs on a cheap smartphone on a dirt lot with bad reception.** Pages measured
-  in kilobytes. High contrast for direct sunlight. Tap targets sized for gloved
-  hands. No megabyte JS payloads.
-- **Static-first, no build step.** Plain HTML + CSS + Alpine.js. No React, no
-  bundler, no npm build pipeline. The maintainer is strong in HTML/CSS and
-  learning the backend as the project grows — favor boring, legible, commented
-  code over cleverness.
-- **Trivially self-hostable** by NGOs, small contractors, and people in
-  developing nations. A $5 VPS or a Raspberry Pi in a job trailer must be enough.
-- **No third-party app-store downloads.** QR check-in/out happens in the mobile
-  browser. The QR code is just a URL that the native phone camera opens.
+- `README.md` — what it is + quickstart. Keep it under one screen of scrolling. Verify the clone URL and commands actually work.
+- `docs/ARCHITECTURE.md` — how the pieces fit together, written for the maintainer two years from now. Update whenever structure changes.
+- `docs/adr/` — one short ADR (context, decision, alternatives rejected, consequences) for any decision that would be hard to reverse: schema changes, auth model, sync strategy, dependency additions, URL/tag format changes (printed labels make these permanent!).
+- `docs/USER_GUIDE.md` — written for foremen and crews. Plain language, screenshots welcome, no jargon.
+- `docs/DEPLOY.md` — Pi/VPS setup, backup, and restore steps that have actually been tested.
 
-## Locked tech stack
+At the end of every working session, before wrapping up:
+1. Update any doc affected by the session's changes.
+2. Tell me if any decision made today deserves an ADR, and draft it if so.
+3. Give me a one-paragraph plain-English summary of what changed and why.
 
-Do not change these without explicit approval from the maintainer.
+## Coding standards
 
-- **Backend: PocketBase** — single Go binary with embedded SQLite. Use its
-  built-in auth, REST API, and admin UI. The binary is downloaded, not committed.
-- **Frontend: vanilla HTML/CSS + Alpine.js**, served from `pb_public/`.
-  **Vendor Alpine and any QR library locally into `pb_public/vendor/`.** Do not
-  rely on a runtime CDN — self-hosters and bad-reception sites need it to work
-  without external requests.
-- **License: AGPLv3** — same choice as Vikunja. It closes the SaaS loophole
-  (anyone offering TrenchNote over a network must publish their modifications)
-  while leaving NGOs and self-hosters completely unaffected. Keep the maintainer
-  as sole copyright holder (or use a CLA for outside contributors) so a paid
-  managed-hosting tier remains possible later.
+- Comment the "why," not the "what."
+- Small commits with plain-English messages describing user-visible impact.
+- Migrations for every schema change — never hand-edit the production database.
+- Anything touching the tag URL format or QR content is a breaking change to physical printed labels. Flag it loudly and require my confirmation.
+- Security notes stay honest: if something is not production-safe yet, say so in the docs rather than hiding it.
 
-## Data model — 5 collections
+## Roadmap context (for your awareness, not action)
 
-Schema lives in `pb_migrations/` as versioned PocketBase JS migrations, NOT as
-hand-built collections in the admin UI. A fresh self-hoster must be able to
-reproduce the entire database from the repo.
-
-- **`items`** — the catalog: what a thing *is*, not a specific one.
-  `name`, `description`, `category`, `tracking_mode` (select: `unique` | `bulk`),
-  `photo` (file).
-- **`locations`** — `name`, `type` (select: `jobsite` | `yard` | `warehouse` |
-  `transit`).
-- **`assets`** — a specific physical instance of a unique item.
-  `item` (relation→items), `tag_code` (text, **unique index**), `serial_number`,
-  `ownership` (select: `owned` | `rented`), `vendor`, `po_number`,
-  `current_location` (relation→locations).
-- **`movements`** — the append-only ledger and **source of truth**. One
-  collection holds both kinds of moves, distinguished by which fields are set:
-  - *Asset move:* `asset` (relation→assets) set; `item` empty, `quantity` 0.
-  - *Bulk move:* `item` (relation→items) + `quantity` (number > 0) set;
-    `asset` empty.
-  Plus `from_location` (relation; empty = entered from outside the system),
-  `to_location` (relation, required), `moved_by` (text), `note` (text). The
-  either/or shape is enforced server-side by the collection's `createRule`.
-  Timestamp is the `created` autodate field.
-- **`reservations`** — `asset` (relation), `requested_by`, `needed_by` (date),
-  `expected_release` (date). UI: reserve + "spoken for" banner on asset.html,
-  upcoming list on the dashboard. Dates are stored date-only at UTC midnight —
-  always format with `timeZone: 'UTC'` or western timezones show the previous
-  day.
-
-### Model principles
-
-- **The movements ledger is the source of truth.** `assets.current_location` is a
-  convenience cache updated after each move — always write the movement record
-  first, then update the cache.
-- **`tracking_mode` distinguishes the two worlds without splitting the schema.**
-  Unique items (a specific serial-numbered total station) become `assets` and
-  move as whole records. Bulk commodities (500 pipe supports) move as quantities
-  in the ledger. Bulk stock-on-hand is derived by summing movements per location,
-  not stored in a column that must be kept in sync.
-- **Rentals are not a special case.** A rented scissor lift is just an asset with
-  `ownership=rented` plus `vendor` and `po_number`. No integrations.
-
-## Repo structure
-
-```
-trenchnote/
-├── CLAUDE.md              # this file — project context
-├── README.md              # what it is + quickstart for self-hosters
-├── USER_GUIDE.md          # field guide for crews — plain language, no jargon
-├── LICENSE                # AGPLv3
-├── docs/
-│   ├── DEVELOPER_GUIDE.md # how it works: data model, invariants, patterns
-│   └── adr/               # architecture decision records (the WHY)
-├── .gitignore             # ignore the pocketbase binary and pb_data/
-├── pb_migrations/         # versioned schema (COMMITTED)
-├── pb_public/             # the static frontend
-│   ├── index.html         # dashboard: assets by location, materials, recently moved
-│   ├── asset.html         # scan landing page: view + move an asset
-│   ├── material.html      # bulk item: stock per location (derived) + move quantities
-│   ├── labels.html        # print QR labels for all assets
-│   └── vendor/            # vendored alpine.min.js, qrcode.min.js
-└── scripts/
-    └── setup.sh           # download the right PocketBase binary for the OS
-```
-
-Committed: source, migrations, vendored libs, docs.
-Ignored: the PocketBase binary (`pocketbase` / `pocketbase.exe`) and `pb_data/`
-(the live database and uploaded files).
-
-## Conventions
-
-- **Frontend talks to PocketBase at `window.location.origin`.** PocketBase serves
-  the pages from `pb_public/`, so the same file works on localhost and over the
-  LAN IP with no config — never hardcode a host.
-- **QR codes encode `{baseUrl}/asset.html?code={tag_code}`** at highest error
-  correction, with the human-readable tag code printed underneath as the
-  mud-proof fallback. Keep tag codes short (3–5 chars) so QR density stays low
-  and scans survive scratches and mud.
-- **Comment the PocketBase API calls** — filter syntax, `expand`, the
-  write-movement-then-update-cache sequence — so the maintainer learns the
-  backend by reading the code.
-- Design tokens: one accent (safety orange) spent only on the primary action;
-  system fonts for zero webfont bytes; monospace for tag codes.
-
-## Security posture
-
-Phase 1 API rules are permissive (public list/view/create/update) for local
-testing. **Every permissive rule must carry a `TODO(auth)` comment** marking the
-rule that becomes `@request.auth.id != ""` before TrenchNote is exposed to the
-internet. PocketBase auth is built in; locking down is a later, deliberate step —
-not an accident waiting to happen.
-
-## Non-goals — push back if asked to build these
-
-- No heavy frontend framework, build step, bundler, or runtime CDN dependency.
-- No vendor API integrations. Rentals stay manual (`ownership=rented`).
-- No accounting, scheduling, or document management. TrenchNote is a logistics
-  ledger and stays one.
-- No multi-tenant shared-database complexity. The future SaaS tier is one
-  PocketBase instance per customer (Vikunja-style), which is simpler and safer.
-
-## Definition of done — the docs-as-code rule
-
-Claude acts as Lead Developer AND Technical Writer for this project. A
-feature, bug fix, or architecture change is NOT finished until the
-documentation checklist below is done. Do not ask permission to write the
-docs — analyze the code just written, update the documentation, and report
-the feature and the documentation as complete together.
-
-1. **ADRs** — if the work involved a significant structural choice (how the
-   database works, how offline syncing works, which library was chosen),
-   create or update an ADR in `docs/adr/` explaining WHY it was done this way.
-   Document the real rationale, not invented ones.
-2. **Developer docs** — update `docs/DEVELOPER_GUIDE.md` so future
-   open-source contributors and self-hosters know how the new code works
-   under the hood.
-3. **User guide** — update `USER_GUIDE.md` (repo root) explaining how a
-   foreman or laborer uses the feature, in plain English, no jargon.
-4. **README** — update `README.md` if setup instructions or core features
-   changed.
-
-Docs must stay truthful to the code as shipped: no documenting aspirations as
-features, and if the code and the docs disagree, fixing that mismatch is part
-of the task.
-
-## Working style
-
-Work task by task. After each task, stop and show the maintainer for review
-before moving on. Explain what you did and why, especially anything touching the
-data model or the ethos above.
+Near-term: auth model ADR (field writes without accounts vs. locked-down rules), fix repo naming/clone URL, tested backup script with integrity check.
+Mid-term: offline-first PWA with service worker + sync queue (its own project phase, needs ADR first), Add to Home Screen.
+Long-term: managed hosting tier, hardware kit (Pi + pre-flashed SD + label sheet). None of these justify violating the hard constraints above.
