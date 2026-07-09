@@ -1,8 +1,9 @@
-# TrenchNote — Developer Guide
+# TrenchNote — Architecture
 
-How the thing actually works. Read [the README](../README.md) first for what
-TrenchNote is; read the [ADRs](adr/) for why it's built this way. This
-document is the *how*.
+How the pieces fit together and why the code looks the way it does —
+written for the maintainer (and contributors) two years from now. Read
+[the README](../README.md) first for what TrenchNote is; read the
+[ADRs](adr/) for why it's built this way. This document is the *how*.
 
 ## The moving parts
 

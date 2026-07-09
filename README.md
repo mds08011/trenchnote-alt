@@ -85,9 +85,9 @@ before printing, so the QR codes point somewhere phones can actually reach.
 
 ## Documentation
 
-- **[USER_GUIDE.md](USER_GUIDE.md)** — the field guide: scanning, moving,
-  reserving, materials. Written for crews, not developers.
-- **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** — how it works under
+- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** — the field guide: scanning,
+  moving, reserving, materials. Written for crews, not developers.
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — how it works under
   the hood: data model, the ledger invariants, migrations, frontend patterns.
 - **[docs/DEPLOY.md](docs/DEPLOY.md)** — running it for real: trailer
   Pi or VPS, systemd, HTTPS with Caddy, and backups you've actually tested.
