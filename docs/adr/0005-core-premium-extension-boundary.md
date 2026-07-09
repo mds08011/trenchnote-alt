@@ -1,6 +1,6 @@
 # ADR 0005 — Core/premium boundary: premium is a sidecar on the public REST API
 
-**Status:** proposed — drafted for maintainer review, not yet accepted · **Date:** 2026-07-09
+**Status:** accepted · **Date:** 2026-07-09
 
 ## Context
 
