@@ -40,8 +40,8 @@ You need `git`, `curl`, and `unzip` (all standard on Linux/macOS; on Windows,
 use Git Bash).
 
 ```sh
-git clone https://github.com/mds08011/trenchnote.git
-cd trenchnote
+git clone https://github.com/mds08011/trenchnote-alt.git
+cd trenchnote-alt
 ./scripts/setup.sh     # downloads the PocketBase binary for your OS
 ./pocketbase serve
 ```

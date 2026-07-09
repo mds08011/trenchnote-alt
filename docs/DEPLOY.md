@@ -21,7 +21,7 @@ no monthly bill.
 ```sh
 # On the box (any Linux; a Pi 3 or better is plenty):
 sudo useradd --system --create-home --home-dir /opt/trenchnote trenchnote
-sudo -u trenchnote git clone https://github.com/mds08011/trenchnote.git /opt/trenchnote/app
+sudo -u trenchnote git clone https://github.com/mds08011/trenchnote-alt.git /opt/trenchnote/app
 cd /opt/trenchnote/app
 sudo -u trenchnote ./scripts/setup.sh
 ```
